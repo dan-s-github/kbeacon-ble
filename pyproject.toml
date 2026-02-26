@@ -153,3 +153,13 @@ changelog.exclude_commit_patterns = [
   "Initial [Cc]ommit.*",         # codespell:ignore
 ]
 changelog.environment.keep_trailing_newline = true
+
+
+[tool.semantic_release.branches.main]
+match = "main"
+prerelease = false
+
+[tool.semantic_release.branches.dev]
+match = "dev"
+prerelease = true
+prerelease_token = "dev"
