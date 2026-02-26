@@ -12,8 +12,8 @@ from sphinx.ext import apidoc
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "kbeacon_ble"
-copyright = "2025, Daniel M"
+project = "KBeacon BLE"
+copyright = "2026, Daniel M"
 author = "Daniel M"
 release = "0.0.0"
 
