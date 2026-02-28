@@ -3,7 +3,7 @@ build-backend = "setuptools.build_meta"
 requires = [ "setuptools>=77.0.3" ]
 
 [project]
-name = "kbeacon_ble"
+name = "kbeacon-ble"
 version = "0.0.0"
 description = "Python library for KBeacon BLE devices"
 readme = "README.md"
@@ -153,13 +153,3 @@ changelog.exclude_commit_patterns = [
   "Initial [Cc]ommit.*",         # codespell:ignore
 ]
 changelog.environment.keep_trailing_newline = true
-
-
-[tool.semantic_release.branches.main]
-match = "main"
-prerelease = false
-
-[tool.semantic_release.branches.dev]
-match = "dev"
-prerelease = true
-prerelease_token = "dev"
