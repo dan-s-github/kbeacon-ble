@@ -96,10 +96,9 @@ jobs:
           github_token: noop
 
       # On main/dev branch: actual PSR + upload to PyPI & GitHub
-      # if github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'dev')
       - name: Release
         uses: python-semantic-release/python-semantic-release@v10
-        if: github.event_name == 'push' && (github.ref_name == 'dev')
+        if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'dev')
         id: release
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
