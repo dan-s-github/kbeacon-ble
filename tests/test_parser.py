@@ -36,7 +36,7 @@ def test_kbeacon_feaa_frame_0x21_parser() -> None:
     # Verify device metadata
     assert result.title == "KBeacon 459F"
     assert result.devices[None].name == "KBeacon 459F"
-    assert result.devices[None].manufacturer == "Kkmcn"
+    assert result.devices[None].manufacturer == "KKM Smart Solutions"
     assert result.devices[None].model == "KBeacon"
 
     # Verify sensor values
