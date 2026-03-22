@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.0-rc.3 (2026-03-22)
+
+### Bug fixes
+
+- Update device manufacturer to kkm smart solutions ([`90d3f80`](https://github.com/dan-s-github/kbeacon-ble/commit/90d3f8087d9e897401477c23ae605f847369ffb7))
+
 ## v1.0.0-rc.2 (2026-03-22)
 
 ### Features
