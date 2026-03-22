@@ -58,7 +58,7 @@ class KBeaconBluetoothDeviceData(BluetoothData):
         short_addr = short_address(service_info.address)
         self.set_title(f"KBeacon {short_addr}")
         self.set_device_name(f"KBeacon {short_addr}")
-        self.set_device_manufacturer("Kkmcn")
+        self.set_device_manufacturer("KKM Smart Solutions")
 
         if kb_ext_data:
             self._parse_kb_extension_data(kb_ext_data)
