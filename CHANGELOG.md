@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.0-rc.4 (2026-03-24)
+
+### Features
+
+- Expose uid tx power from feaa uid frames ([`8be4d24`](https://github.com/dan-s-github/kbeacon-ble/commit/8be4d24828c8a110612333e380178b84fd4923b3))
+
 ## v1.0.0-rc.3 (2026-03-22)
 
 ### Bug fixes
