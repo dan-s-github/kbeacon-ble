@@ -187,8 +187,8 @@ def test_kbeacon_system_frame_battery() -> None:
     assert result.entity_values[battery_key].native_value == 99
 
 
-def test_kbeacon_uid_frame_no_sensors() -> None:
-    """Test parsing FEAA UID frame (0x00) does not add sensor values."""
+def test_kbeacon_uid_frame_tx_power() -> None:
+    """Test parsing FEAA UID frame (0x00) exposes UID Tx power."""
     # frame=0x00, tx=0xF4, namespace(10)=0, instance(6)=0, RFU(2)=0
     data_string = bytes.fromhex("00F4000000000000000000000000000000000000")
     service_info = make_service_info(
@@ -203,10 +203,10 @@ def test_kbeacon_uid_frame_no_sensors() -> None:
     result = parser.update(service_info)
 
     assert result.title == "KBeacon 459F"
-    assert not any(
-        k.key in {"voltage", "temperature", "humidity", "battery"}
-        for k in result.entity_values.keys()
+    uid_tx_power_key = next(
+        k for k in result.entity_values.keys() if k.key == "uid_tx_power"
     )
+    assert result.entity_values[uid_tx_power_key].native_value == -12
 
 
 def test_kbeacon_extension_2080_battery() -> None:

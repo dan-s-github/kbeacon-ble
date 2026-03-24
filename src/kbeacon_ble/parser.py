@@ -8,7 +8,7 @@ import struct
 from bluetooth_data_tools import short_address
 from bluetooth_sensor_state_data import BluetoothData
 from habluetooth import BluetoothServiceInfoBleak
-from sensor_state_data import SensorLibrary
+from sensor_state_data import SensorDeviceClass, SensorLibrary, Units
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -21,6 +21,7 @@ FRAME_TYPE_URL = 0x10
 FRAME_TYPE_TLM = 0x20
 FRAME_TYPE_SENSOR = 0x21
 FRAME_TYPE_SYSTEM = 0x22
+UID_TX_POWER_KEY = "uid_tx_power"
 
 # Sensor mask bits
 MASK_VOLTAGE = 1 << 0  # bit 0: Voltage (2 bytes, mV)
@@ -264,9 +265,17 @@ class KBeaconBluetoothDeviceData(BluetoothData):
             _LOGGER.debug("UID frame too short: %d bytes", len(data))
             return
 
+        tx_power = int.from_bytes(data[1:2], byteorder="big", signed=True)
+        self.update_sensor(
+            key=UID_TX_POWER_KEY,
+            native_unit_of_measurement=Units.SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+            native_value=tx_power,
+            device_class=SensorDeviceClass.SIGNAL_STRENGTH,
+        )
+
         _LOGGER.debug(
             "UID frame parsed: tx=%d nid=%s sid=%s",
-            int.from_bytes(data[1:2], byteorder="big", signed=True),
+            tx_power,
             data[2:12].hex(),
             data[12:18].hex(),
         )
