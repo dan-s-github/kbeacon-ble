@@ -275,6 +275,64 @@ def test_kbeacon_temperature_negative() -> None:
     assert result.entity_values[temperature_key].native_value == -10.0
 
 
+def test_kbeacon_sensor_accelerometer() -> None:
+    """Test parsing 0x21 frame with accelerometer field."""
+    # frame=0x21, mask=0x0008 (ACC only)
+    # X=-4mg (0xFFFC), Y=276mg (0x0114), Z=936mg (0x03A8)
+    data_string = bytes.fromhex("210008FFFC011403A8")
+    service_info = make_service_info(
+        name="KBPro_Accel",
+        address="BC:57:29:02:45:9F",
+        service_uuids=["0000feaa-0000-1000-8000-00805f9b34fb"],
+        service_data={"0000feaa-0000-1000-8000-00805f9b34fb": data_string},
+        manufacturer_data={},
+    )
+
+    parser = KBeaconBluetoothDeviceData()
+    result = parser.update(service_info)
+
+    accel_x_key = next(
+        k for k in result.entity_values.keys() if k.key == "acceleration_x"
+    )
+    accel_y_key = next(
+        k for k in result.entity_values.keys() if k.key == "acceleration_y"
+    )
+    accel_z_key = next(
+        k for k in result.entity_values.keys() if k.key == "acceleration_z"
+    )
+
+    assert result.entity_values[accel_x_key].native_value == -0.039
+    assert result.entity_values[accel_y_key].native_value == 2.707
+    assert result.entity_values[accel_z_key].native_value == 9.179
+
+
+def test_kbeacon_sensor_unread_records() -> None:
+    """Test parsing 0x21 frame with unread-records diagnostic field."""
+    # frame=0x21, mask=0x0400 (UNREAD_RECORDS only)
+    # count_mask=0x01, unread_records=0x6842 (26690)
+    data_string = bytes.fromhex("210400016842")
+    service_info = make_service_info(
+        name="KBPro_Unread",
+        address="BC:57:29:02:45:9F",
+        service_uuids=["0000feaa-0000-1000-8000-00805f9b34fb"],
+        service_data={"0000feaa-0000-1000-8000-00805f9b34fb": data_string},
+        manufacturer_data={},
+    )
+
+    parser = KBeaconBluetoothDeviceData()
+    result = parser.update(service_info)
+
+    flags_key = next(
+        k for k in result.entity_values.keys() if k.key == "unread_records_flags"
+    )
+    records_key = next(
+        k for k in result.entity_values.keys() if k.key == "unread_records"
+    )
+
+    assert result.entity_values[flags_key].native_value == 1
+    assert result.entity_values[records_key].native_value == 26690
+
+
 def make_service_info(
     name: str,
     address: str,

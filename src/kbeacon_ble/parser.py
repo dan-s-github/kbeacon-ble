@@ -22,6 +22,11 @@ FRAME_TYPE_TLM = 0x20
 FRAME_TYPE_SENSOR = 0x21
 FRAME_TYPE_SYSTEM = 0x22
 UID_TX_POWER_KEY = "uid_tx_power"
+UNREAD_RECORDS_FLAGS_KEY = "unread_records_flags"
+UNREAD_RECORDS_KEY = "unread_records"
+
+# 1 mg = 1/1000 g, 1 g = 9.80665 m/s^2
+MG_TO_METERS_PER_SQUARE_SECOND = 9.80665 / 1000
 
 # Sensor mask bits
 MASK_VOLTAGE = 1 << 0  # bit 0: Voltage (2 bytes, mV)
@@ -179,7 +184,22 @@ class KBeaconBluetoothDeviceData(BluetoothData):
         if sensor_mask & MASK_ACC:
             if offset + 6 > len(data):
                 return
+            accel_x_mg = _UNPACK_S16_BE(data[offset : offset + 2])[0]
+            accel_y_mg = _UNPACK_S16_BE(data[offset + 2 : offset + 4])[0]
+            accel_z_mg = _UNPACK_S16_BE(data[offset + 4 : offset + 6])[0]
             offset += 6
+
+            self.set_precision(3)
+            for axis, accel_mg in (
+                ("x", accel_x_mg),
+                ("y", accel_y_mg),
+                ("z", accel_z_mg),
+            ):
+                self.update_predefined_sensor(
+                    SensorLibrary.ACCELERATION__ACCELERATION_METERS_PER_SQUARE_SECOND,
+                    accel_mg * MG_TO_METERS_PER_SQUARE_SECOND,
+                    key=f"acceleration_{axis}",
+                )
 
         if sensor_mask & MASK_CUTOFF:
             if offset + 1 > len(data):
@@ -222,10 +242,21 @@ class KBeaconBluetoothDeviceData(BluetoothData):
                 return
             count_mask = data[offset]
             offset += 1
+            self.update_sensor(
+                key=UNREAD_RECORDS_FLAGS_KEY,
+                native_unit_of_measurement=None,
+                native_value=count_mask,
+            )
             if count_mask & 0x01:
                 if offset + 2 > len(data):
                     return
+                unread_records = _UNPACK_U16_BE(data[offset : offset + 2])[0]
                 offset += 2
+                self.update_sensor(
+                    key=UNREAD_RECORDS_KEY,
+                    native_unit_of_measurement=None,
+                    native_value=unread_records,
+                )
 
     def _parse_tlm_frame(self, data: bytes) -> None:
         """Parse FEAA frame type 0x20 (Eddystone TLM)."""
