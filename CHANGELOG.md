@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.0-rc.5 (2026-08-12)
+
+### Features
+
+- Decode pu200 sensor-frame reserved field and tick counter ([`0861d95`](https://github.com/dan-s-github/kbeacon-ble/commit/0861d95732a0e05fe7f77e9c5cc598cff6032cb3))
+- Expose accelerometer and unread-records diagnostics from feaa sensor frames ([`c2071a8`](https://github.com/dan-s-github/kbeacon-ble/commit/c2071a848951895265b28b5545fd9af4288b7bcd))
+
 ## v1.0.0-rc.4 (2026-03-24)
 
 ### Features
