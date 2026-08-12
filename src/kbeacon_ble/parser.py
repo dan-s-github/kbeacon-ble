@@ -24,6 +24,8 @@ FRAME_TYPE_SYSTEM = 0x22
 UID_TX_POWER_KEY = "uid_tx_power"
 UNREAD_RECORDS_FLAGS_KEY = "unread_records_flags"
 UNREAD_RECORDS_KEY = "unread_records"
+SENSOR_RESERVED_FIELD_KEY = "sensor_reserved_field"
+SENSOR_TICK_COUNTER_KEY = "sensor_tick_counter"
 
 # 1 mg = 1/1000 g, 1 g = 9.80665 m/s^2
 MG_TO_METERS_PER_SQUARE_SECOND = 9.80665 / 1000
@@ -39,10 +41,17 @@ MASK_LUX = 1 << 6  # bit 6: Light (2 bytes)
 MASK_VOC = 1 << 7  # bit 7: VOC (1 + 2 + 2 bytes)
 MASK_CO2 = 1 << 9  # bit 9: CO2
 MASK_UNREAD_RECORDS = 1 << 10  # bit 10: Unread record count (1 + 2 bytes)
+# bit 12: 4-byte field observed on "PU200" devices, always 0x00000000 so far;
+# meaning unconfirmed (no vendor spec available).
+MASK_RESERVED_FIELD = 1 << 12
+# bit 14: 1-byte field observed on "PU200" devices that empirically increments
+# by roughly 1 per elapsed second; exact unit/meaning unconfirmed.
+MASK_TICK_COUNTER = 1 << 14
 
 # Cached struct unpackers for efficiency
 _UNPACK_U16_BE = struct.Struct(">H").unpack
 _UNPACK_S16_BE = struct.Struct(">h").unpack
+_UNPACK_U32_BE = struct.Struct(">I").unpack
 
 
 class KBeaconBluetoothDeviceData(BluetoothData):
@@ -257,6 +266,28 @@ class KBeaconBluetoothDeviceData(BluetoothData):
                     native_unit_of_measurement=None,
                     native_value=unread_records,
                 )
+
+        if sensor_mask & MASK_RESERVED_FIELD:
+            if offset + 4 > len(data):
+                return
+            reserved_value = _UNPACK_U32_BE(data[offset : offset + 4])[0]
+            offset += 4
+            self.update_sensor(
+                key=SENSOR_RESERVED_FIELD_KEY,
+                native_unit_of_measurement=None,
+                native_value=reserved_value,
+            )
+
+        if sensor_mask & MASK_TICK_COUNTER:
+            if offset + 1 > len(data):
+                return
+            tick_counter = data[offset]
+            offset += 1
+            self.update_sensor(
+                key=SENSOR_TICK_COUNTER_KEY,
+                native_unit_of_measurement=None,
+                native_value=tick_counter,
+            )
 
     def _parse_tlm_frame(self, data: bytes) -> None:
         """Parse FEAA frame type 0x20 (Eddystone TLM)."""

@@ -333,6 +333,35 @@ def test_kbeacon_sensor_unread_records() -> None:
     assert result.entity_values[records_key].native_value == 26690
 
 
+def test_kbeacon_sensor_pu200_reserved_and_tick_counter() -> None:
+    """Test parsing 0x21 frame with PU200 reserved field and tick counter."""
+    # frame=0x21, mask=0x5207 (V,T,H,CO2,RESERVED,TICK_COUNTER)
+    # voltage=0x0CE4(3.300V), temp=0x1800(24C), hum=0x3600(54%)
+    # co2_elapsed=0x00, co2=0x04D6(1238ppm)
+    # reserved=0x00000000, tick_counter=0x2C(44)
+    data_string = bytes.fromhex("2152070CE4180036000004D6000000002C")
+    service_info = make_service_info(
+        name="PU200",
+        address="BC:57:29:02:45:9F",
+        service_uuids=["0000feaa-0000-1000-8000-00805f9b34fb"],
+        service_data={"0000feaa-0000-1000-8000-00805f9b34fb": data_string},
+        manufacturer_data={},
+    )
+
+    parser = KBeaconBluetoothDeviceData()
+    result = parser.update(service_info)
+
+    reserved_key = next(
+        k for k in result.entity_values.keys() if k.key == "sensor_reserved_field"
+    )
+    tick_key = next(
+        k for k in result.entity_values.keys() if k.key == "sensor_tick_counter"
+    )
+
+    assert result.entity_values[reserved_key].native_value == 0
+    assert result.entity_values[tick_key].native_value == 44
+
+
 def make_service_info(
     name: str,
     address: str,
